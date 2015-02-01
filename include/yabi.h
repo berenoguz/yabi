@@ -163,7 +163,7 @@ namespace yabi
 	using BrainfuckInterpreter = Interpreter<BrainfuckInterpreterStack<size>,
                                              BrainfuckInterpreterTokens,
                                              BrainfuckInterpreterBuffer,
-                                             BrainfuckInterpreterContainer,
+                                             BrainfuckInterpreterContainer ,
                                              BrainfuckInterpreterFile,
                                              BrainfuckInterpreterState,
                                              BrainfuckInterpreterPointer,
