@@ -58,7 +58,27 @@ namespace yabi
     has_(while_loop_end);
     has_(stack_debug_symbol);
 
+    has_(bit_size);
+
     #undef has_
+
+    template<class Type>
+    struct is_bitset : std::false_type
+    {
+
+    };
+
+    template<std::size_t N>
+    struct is_bitset<std::bitset<N>> : std::true_type
+    {
+
+    };
+
+    template<std::size_t N>
+    struct is_bitset<Bitset<N>> : std::true_type
+    {
+
+    };
 }
 
 #endif // YABI_INTERPRETER_TRAITS_HPP
