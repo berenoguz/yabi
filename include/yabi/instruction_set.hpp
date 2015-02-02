@@ -25,6 +25,34 @@
 namespace yabi
 {
     template<class TokensType>
+    struct ElementsFromFileToBuffer
+    {
+        template<class BufferType, class ValueType, class... Any>
+        static inline void instruct(BufferType& buffer, const ValueType& value, Any...)
+        {
+            buffer.push_back(value);
+        }
+    };
+
+    template<class TokensType>
+    struct BitsFromFileToBuffer
+    {
+        template<class BufferType, class ValueType>
+        static inline void instruct(BufferType& buffer, const ValueType& value)
+        {
+            for(Integer i = 0; (i+TokensType::bit_size) <= 8; i+= TokensType::bit_size)
+            {
+                typename TokensType::type bitset;
+                for(Integer j=0; j < TokensType::bit_size; j++)
+                {
+                    bitset[j] = std::bitset<sizeof(ValueType)*8>(value)[(i+j)%8];
+                }
+                buffer.push_back(bitset);
+            }
+        }
+    };
+
+    template<class TokensType>
     struct EmptyInstruction
     {
         template<class... Any>
