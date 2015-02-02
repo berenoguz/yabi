@@ -85,10 +85,10 @@ namespace yabi
 			const StateType operator () (FileType& file, InputChannelType& input = std::cin, OutputChannelType& output = std::cout)
 			{
 				BufferType buffer;
-			    UnderlyingTypeOfTokensType value;
+			    typename TokensType::RepresentativeType value;
 				while(file >> value)
                 {
-                    buffer.push_back(value);
+                    std::conditional<has_bit_size<TokensType>::value,BitsFromFileToBuffer<TokensType>,ElementsFromFileToBuffer<TokensType>>::type::instruct(buffer,value);
                 }
 				return this->process(buffer, input, output);
 			}
@@ -123,6 +123,7 @@ namespace yabi
                                          UnaryInterpreterSize>;
 
     typedef BrainfuckInterpreterFile BrainfuckFile;
+    typedef UnaryInterpreterFile UnaryFile;
 }
 
 #endif // YABI_H
