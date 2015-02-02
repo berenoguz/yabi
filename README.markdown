@@ -1,7 +1,7 @@
 # <b>Y</b>et <b>A</b>nother <b>B</b>rainfuck <b>I</b>mplementation
 *Yabi*, unlike its name, is not just a brainfuck interpreter. It also attempts to provide a generic API to generate brainfuck-like language interpreters on compile time.
 
-Currently, ```yabi``` is in alpha version; however it is able to interpret every brainfuck file.
+Currently, ```yabi``` is in alpha version; however it is able to interpret every brainfuck program, stably.
 
 ## Usage
 After installing yabi, you can just call the brainfuck file as the binary's first argument:
@@ -40,37 +40,47 @@ You can also uninstall binary and C++ library header files by:
 ## API
 Nothing about brainfuck is hardcoded in yabi library. Every token defined as a ```constexpr``` value. Interpreter is generically created as:
 ``` cpp
-template<Size size>
-using BrainfuckInterpreter = Interpreter<BrainfuckInterpreterStack<size>,
-                                         BrainfuckInterpreterTokens,
-                                         BrainfuckInterpreterBuffer,
-                                         BrainfuckInterpreterVector,
-                                         BrainfuckInterpreterFile,
-                                         BrainfuckInterpreterState,
-                                         BrainfuckInterpreterPointer,
-                                         BrainfuckInterpreterFlag,
-                                         BrainfuckInterpreterSize>;
+namespace yabi
+{
+	template<Size size>
+	using BrainfuckInterpreter = Interpreter<BrainfuckInterpreterStack<size>,
+	                                         BrainfuckInterpreterTokens,
+	                                         BrainfuckInterpreterBuffer,
+	                                         BrainfuckInterpreterVector,
+	                                         BrainfuckInterpreterFile,
+	                                         BrainfuckInterpreterState,
+	                                         decltype(std::cin),
+	                                         decltype(std::cout),
+	                                         BrainfuckInterpreterPointer,
+	                                         BrainfuckInterpreterFlag,
+	                                         BrainfuckInterpreterSize>;
+}
 ```
 
 Here, tokens are defined as:
 ``` cpp
-typedef uint8_t Byte;
-// ...
-typedef Byte BrainfuckInterpreterFundamentalType;
-// ...
-struct BrainfuckInterpreterTokens
+namespace yabi
 {
-	typedef BrainfuckInterpreterFundamentalType type;
-	constexpr static const type move_right = '>';
-	constexpr static const type move_left = '<';
-	constexpr static const type increment = '+';
-	constexpr static const type decrement = '-';
-	constexpr static const type output = '.';
-	constexpr static const type input = ',';
-	constexpr static const type while_loop_begin = '[';
-	constexpr static const type while_loop_end = ']';
-	constexpr static const type stack_debug_symbol = '#';
-};
+	typedef uint8_t Byte;
+	// ...
+	typedef Byte BrainfuckInterpreterFundamentalType;
+	// ...
+	struct BrainfuckInterpreterTokens
+	{
+		typedef BrainfuckInterpreterFundamentalType type;
+		constexpr static const type move_right = '>';
+		constexpr static const type move_left = '<';
+		constexpr static const type increment = '+';
+		constexpr static const type decrement = '-';
+		constexpr static const type output = '.';
+		constexpr static const type input = ',';
+		constexpr static const type while_loop_begin = '[';
+		constexpr static const type while_loop_end = ']';
+		constexpr static const type stack_debug_symbol = '#';
+
+		constexpr static const Error other_tokens_are_comments = Error::ignored; // Other characters are ignored
+	};
+}
 ```
 
 ## ToDo
