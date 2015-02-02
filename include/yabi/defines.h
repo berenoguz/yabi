@@ -37,9 +37,6 @@
 #include <stack>
 #include <stdint.h>
 
-#include "static_if.hpp"
-#include "interpreter_traits.hpp"
-
 namespace yabi
 {
 	/// General Type definitions
@@ -71,9 +68,39 @@ namespace yabi
 	    fatal_error
 	};
 
+	/// Yabi bitset
+
+	template<Size size>
+	struct Bitset : public std::bitset<size>
+	{
+	    Bitset() noexcept : std::bitset<size>() {}
+	    Bitset(unsigned long val) : std::bitset<size>(val) {}
+	    template<class CharType, class Traits, class Allocator>
+	    explicit Bitset(const std::basic_string<CharType, Traits, Allocator>& str,
+                        typename std::basic_string<CharType, Traits, Allocator>::size_type pos = 0,
+                        typename std::basic_string<CharType, Traits, Allocator>::size_type n =
+                                 std::basic_string<CharType, Traits, Allocator>::npos,
+                        CharType zero = CharType('0'),
+                        CharType one = CharType('1'))
+                        : std::bitset<size>(str, pos, n, zero, one) {}
+	    template<class CharType>
+	    explicit Bitset(const CharType* str,
+                        typename std::basic_string<CharType>::size_type n =
+                                 std::basic_string<CharType>::npos,
+                        CharType zero = CharType('0'),
+                        CharType one = CharType('1'))
+                        : std::bitset<size>(str, n, zero, one) {}
+
+
+	    operator unsigned long () const
+	    {
+	        return this->to_ulong();
+	    }
+	};
+
 	/// Brainfuck Interpreter types
 	typedef Byte BrainfuckInterpreterFundamentalType;
-	template<Size size> using BrainfuckInterpreterStack = Array<BrainfuckInterpreterFundamentalType,size>;
+	template<Size size> using BrainfuckInterpreterStack = Array<Byte,size>;
 	template<typename Type> using BrainfuckInterpreterContainer = Stack<Type>;
 	typedef Pointer BrainfuckInterpreterPointer;
 	typedef Flag BrainfuckInterpreterFlag;
@@ -86,7 +113,7 @@ namespace yabi
 
 	struct BrainfuckInterpreterTokens
 	{
-	    typedef BrainfuckInterpreterFundamentalType type;
+	    typedef Byte type;
 	    constexpr static const type move_right = '>';
 	    constexpr static const type move_left = '<';
 	    constexpr static const type increment = '+';
@@ -103,6 +130,45 @@ namespace yabi
     typedef std::ifstream BrainfuckInterpreterFile;
     template<class Type> using BrainfuckInterpreterBuffer = Vector<Type>;
     template<class Type> using BrainfuckInterpreterStream = std::istreambuf_iterator<Type>;
+
+	/// Unary Interpreter types
+	constexpr static const Size UnaryBitSize = 3;
+	typedef Bitset<UnaryBitSize> UnaryInterpreterFundamentalType;
+	template<Size size> using UnaryInterpreterStack = Array<Byte,size>;
+	template<typename Type> using UnaryInterpreterContainer = Stack<Type>;
+	typedef Pointer UnaryInterpreterPointer;
+	typedef Flag UnaryInterpreterFlag;
+	typedef Size UnaryInterpreterSize;
+	enum class UnaryInterpreterState : int
+	{
+		success = 0,
+		failure
+	};
+
+    typedef std::ifstream UnaryInterpreterFile;
+    template<class Type> using UnaryInterpreterBuffer = Vector<Type>;
+    template<class Type> using UnaryInterpreterStream = std::istreambuf_iterator<Type>;
+
+	struct UnaryInterpreterTokens
+	{
+	    typedef UnaryInterpreterFundamentalType type;
+	    constexpr static const Byte move_right = 0;
+	    constexpr static const Byte move_left = 1;
+	    constexpr static const Byte increment = 2;
+        constexpr static const Byte decrement = 3;
+	    constexpr static const Byte output = 4;
+	    constexpr static const Byte input = 5;
+        constexpr static const Byte while_loop_begin = 6;
+        constexpr static const Byte while_loop_end = 7;
+
+        constexpr static const Error other_tokens_are_comments = Error::ignored;
+
+        constexpr static const Size bit_size = UnaryBitSize;
+	};
 }
+
+#include "static_if.hpp"
+#include "interpreter_traits.hpp"
+#include "instruction_set.hpp"
 
 #endif // YABI_DEFINES_H
