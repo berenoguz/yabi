@@ -50,141 +50,28 @@ namespace yabi
 			    StateType interpreter_state = StateType::success;
 				PointerType pointer = 0;
 				ContainerType<typename BufferType::const_iterator> jump_locations;
-				FlagType locked;
-				SizeType lock_count = 0;
+				FlagType while_locked;
+				SizeType while_lock_count = 0;
 				for(typename BufferType::const_iterator iterator = buffer.begin(); iterator != buffer.end(); ++iterator)
 				{
-					 if(!locked)
-					 {
-						 switch(*iterator)
-						 {
-						     if(has_increment<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::increment):
-                                 {
-                                     stack[pointer]++;
-                                     break;
-                                 }
-                             }
-                             if(has_decrement<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::decrement):
-                                 {
-                                     stack[pointer]--;
-                                     break;
-                                 }
-                             }
-                             if(has_move_right<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::move_right):
-                                 {
-                                     pointer++;
-                                     break;
-                                 }
-                             }
-                             if(has_move_left<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::move_left):
-                                 {
-                                     pointer--;
-                                     break;
-                                 }
-                             }
-                             if(has_output<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::output):
-                                 {
-                                     output << stack[pointer];
-                                     break;
-                                 }
-                             }
-                             if(has_input<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::input):
-                                 {
-                                     input >> stack[pointer];
-                                     break;
-                                 }
-                             }
-                             if(has_while_loop_begin<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::while_loop_begin):
-                                 {
-                                     if(stack[pointer])
-                                     {
-                                         jump_locations.push(iterator);
-                                     }
-                                     else
-                                     {
-                                         locked = true;
-                                         lock_count++;
-                                     }
-                                     break;
-                                 }
-                             }
-                             if(has_while_loop_end<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::while_loop_end):
-                                 {
-                                     if(stack[pointer])
-                                     {
-                                         iterator = jump_locations.top();
-                                     }
-                                     else
-                                     {
-                                         jump_locations.pop();
-                                     }
-                                     break;
-                                 }
-                             }
-                             if(has_stack_debug_symbol<TokensType>::value)
-                             {
-                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::stack_debug_symbol):
-                                 {
-                                     output << "Position of code: " << iterator - buffer.begin() << std::endl;
-                                     output << "Pointer: " << pointer << std::endl;
-                                     output << "Value at pointer: " << (int)stack[pointer] << std::endl;
-                                     break;
-                                 }
-                             }
-                             default:
-                             {
-                                 if(TokensType::other_tokens_are_comments == Error::ignored)
-                                 {
-
-                                 }
-                                 else if(TokensType::other_tokens_are_comments == Error::fatal_error)
-                                 {
-                                     String string;
-                                     static_if(throwable)
-                                     {
-                                         std::stringstream stream;
-                                         stream << "Unexpected token, character " << (iterator - buffer.begin()) << "! This is a fatal error, quiting.";
-                                         stream >> string;
-                                         throw std::logic_error(string);
-                                     };
-                                     std::cerr << string << std::endl;
-                                     interpreter_state = StateType::failure;
-                                 }
-                                 break;
-                             }
-                         }
-                     }
-                     else
-                     {
-                         if(*iterator == static_cast<UnderlyingTypeOfTokensType>(TokensType::while_loop_end))
-                         {
-                             if(--lock_count == 0)
-                             {
-                                 locked = false;
-                             }
-                         }
-                         else if(*iterator == static_cast<UnderlyingTypeOfTokensType>(TokensType::while_loop_begin))
-                         {
-                             lock_count++;
-                         }
-                     }
-                }
+                    if(!while_locked)
+                    {
+                        std::conditional<has_increment<TokensType>::value,Increment<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
+                        std::conditional<has_decrement<TokensType>::value,Decrement<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
+                        std::conditional<has_move_right<TokensType>::value,MoveRight<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
+                        std::conditional<has_move_left<TokensType>::value,MoveLeft<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
+                        std::conditional<has_output<TokensType>::value,Output<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,stack,pointer);
+                        std::conditional<has_input<TokensType>::value,Input<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,input,stack,pointer);
+                        std::conditional<has_while_loop_begin<TokensType>::value,WhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations,while_locked,while_lock_count);
+                        std::conditional<has_while_loop_end<TokensType>::value,WhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations);
+                        std::conditional<has_stack_debug_symbol<TokensType>::value,StackDebugSymbol<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,buffer,stack,pointer);
+                    }
+                    else if(while_locked)
+                    {
+                        std::conditional<has_while_loop_end<TokensType>::value,CheckIfWhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_locked,while_lock_count);
+                        std::conditional<has_while_loop_begin<TokensType>::value,CheckIfWhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_lock_count);
+                    }
+				}
 
 			 	return interpreter_state;
 			}
@@ -219,6 +106,21 @@ namespace yabi
                                              BrainfuckInterpreterPointer,
                                              BrainfuckInterpreterFlag,
                                              BrainfuckInterpreterSize>;
+
+    typedef BrainfuckInterpreterFile BrainfuckFile;
+
+    template<Size size>
+	using UnaryInterpreter = Interpreter<UnaryInterpreterStack<size>,
+                                         UnaryInterpreterTokens,
+                                         UnaryInterpreterBuffer,
+                                         UnaryInterpreterContainer ,
+                                         UnaryInterpreterFile,
+                                         UnaryInterpreterState,
+                                         decltype(std::cin),
+                                         decltype(std::cout),
+                                         UnaryInterpreterPointer,
+                                         UnaryInterpreterFlag,
+                                         UnaryInterpreterSize>;
 
     typedef BrainfuckInterpreterFile BrainfuckFile;
 }
