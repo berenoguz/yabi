@@ -33,7 +33,8 @@ namespace yabi
 			 typename StateType,
 			 typename PointerType,
 			 typename FlagType,
-			 typename SizeType>
+			 typename SizeType,
+			 Flag throwable = false>
 	class Interpreter
 	{
 		private:
@@ -44,6 +45,7 @@ namespace yabi
 
 			const StateType process(const BufferType& buffer)
 			{
+			    StateType interpreter_state = StateType::success;
 				PointerType pointer = 0;
 				ContainerType<typename BufferType::const_iterator> jump_locations;
 				FlagType locked;
@@ -145,6 +147,23 @@ namespace yabi
                              }
                              default:
                              {
+                                 if(TokensType::other_tokens_are_comments == Error::ignored)
+                                 {
+
+                                 }
+                                 else if(TokensType::other_tokens_are_comments == Error::fatal_error)
+                                 {
+                                     String string;
+                                     static_if(throwable)
+                                     {
+                                         std::stringstream stream;
+                                         stream << "Unexpected token, character " << (iterator - buffer.begin()) << "! This is a fatal error, quiting.";
+                                         stream >> string;
+                                         throw std::logic_error(string);
+                                     };
+                                     std::cerr << string << std::endl;
+                                     interpreter_state = StateType::failure;
+                                 }
                                  break;
                              }
                          }
@@ -165,7 +184,7 @@ namespace yabi
                      }
                 }
 
-			 	return StateType::success;
+			 	return interpreter_state;
 			}
 
 		public:
