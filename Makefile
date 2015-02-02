@@ -15,3 +15,5 @@ clean:
 	rm -f $(BIN)
 uninstall:
 	rm -f $(PREFIX)/bin/$(BIN)
+	rm $(INCLUDE_DIR)$(INCLUDE)/yabi.h
+	rm -R $(INCLUDE_DIR)$(INCLUDE)/yabi
