@@ -167,7 +167,6 @@ namespace yabi
 	};
 }
 
-#include "static_if.hpp"
 #include "interpreter_traits.hpp"
 #include "instruction_set.hpp"
 
