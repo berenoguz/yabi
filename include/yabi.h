@@ -54,61 +54,87 @@ namespace yabi
 					 {
 						 switch(*iterator)
 						 {
-						     case static_cast<UnderlyingTypeOfTokensType>(TokensType::increment):
+						     if(has_increment<TokensType>::value)
                              {
-                                 stack[pointer]++;
-                                 break;
-                             }
-                             case static_cast<UnderlyingTypeOfTokensType>(TokensType::decrement):
-                             {
-                                 stack[pointer]--;
-                                 break;
-                             }
-                             case static_cast<UnderlyingTypeOfTokensType>(TokensType::move_right):
-                             {
-                                 pointer++;
-                                 break;
-                             }
-                             case static_cast<UnderlyingTypeOfTokensType>(TokensType::move_left):
-                             {
-                                 pointer--;
-                                 break;
-                             }
-                             case static_cast<UnderlyingTypeOfTokensType>(TokensType::output):
-                             {
-                                 std::cout << stack[pointer];
-                                 break;
-                             }
-                             case static_cast<UnderlyingTypeOfTokensType>(TokensType::input):
-                             {
-                                 std::cin >> stack[pointer];
-                                 break;
-                             }
-                             case static_cast<UnderlyingTypeOfTokensType>(TokensType::while_loop_begin):
-                             {
-                                 if(stack[pointer])
+                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::increment):
                                  {
-                                     jump_locations.push(iterator);
+                                     stack[pointer]++;
+                                     break;
                                  }
-                                 else
-                                 {
-                                     locked = true;
-                                     lock_count++;
-                                 }
-                                 break;
                              }
-                             case static_cast<UnderlyingTypeOfTokensType>(TokensType::while_loop_end):
+                             if(has_decrement<TokensType>::value)
                              {
-                                 if(stack[pointer])
+                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::decrement):
                                  {
-                                     iterator = jump_locations.top();
+                                     stack[pointer]--;
+                                     break;
                                  }
-                                 else
-                                 {
-                                     jump_locations.pop();
-                                 }
-                                 break;
                              }
+                             if(has_move_right<TokensType>::value)
+                             {
+                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::move_right):
+                                 {
+                                     pointer++;
+                                     break;
+                                 }
+                             }
+                             if(has_move_left<TokensType>::value)
+                             {
+                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::move_left):
+                                 {
+                                     pointer--;
+                                     break;
+                                 }
+                             }
+                             if(has_output<TokensType>::value)
+                             {
+                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::output):
+                                 {
+                                     std::cout << stack[pointer];
+                                     break;
+                                 }
+                             }
+                             if(has_input<TokensType>::value)
+                             {
+                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::input):
+                                 {
+                                     std::cin >> stack[pointer];
+                                     break;
+                                 }
+                             }
+                             if(has_while_loop_begin<TokensType>::value)
+                             {
+                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::while_loop_begin):
+                                 {
+                                     if(stack[pointer])
+                                     {
+                                         jump_locations.push(iterator);
+                                     }
+                                     else
+                                     {
+                                         locked = true;
+                                         lock_count++;
+                                     }
+                                     break;
+                                 }
+                             }
+                             if(has_while_loop_end<TokensType>::value)
+                             {
+                                 case static_cast<UnderlyingTypeOfTokensType>(TokensType::while_loop_end):
+                                 {
+                                     if(stack[pointer])
+                                     {
+                                         iterator = jump_locations.top();
+                                     }
+                                     else
+                                     {
+                                         jump_locations.pop();
+                                     }
+                                     break;
+                                 }
+                             }
+                             if(has_stack_debug_symbol<TokensType>::value)
+                             {
                                  case static_cast<UnderlyingTypeOfTokensType>(TokensType::stack_debug_symbol):
                                  {
                                      std::cout << "Position of code: " << iterator - buffer.begin() << std::endl;
@@ -116,6 +142,7 @@ namespace yabi
                                      std::cout << "Value at pointer: " << (int)stack[pointer] << std::endl;
                                      break;
                                  }
+                             }
                              default:
                              {
                                  break;
