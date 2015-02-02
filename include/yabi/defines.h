@@ -51,12 +51,25 @@ namespace yabi
 	typedef double Real;
 	typedef intptr_t Pointer;
 	typedef bool Flag;
+	typedef std::string String;
 
 	typedef std::ifstream File;
 
 	template<typename Type, Size size> using Array = std::array<Type,size>;
 	template<typename Type> using Vector = std::vector<Type>;
 	template<typename Type> using Stack = std::stack<Type>;
+
+	enum struct Error : Size
+	{
+	    ignored = 0,
+	    parser_warning,
+	    lexer_warning,
+	    logical_warning,
+	    parser_error,
+	    lexer_error,
+	    logical_error,
+	    fatal_error
+	};
 
 	/// Brainfuck Interpreter types
 	typedef Byte BrainfuckInterpreterFundamentalType;
@@ -67,7 +80,8 @@ namespace yabi
 	typedef Size BrainfuckInterpreterSize;
 	enum class BrainfuckInterpreterState : int
 	{
-		success = 0
+		success = 0,
+		failure
 	};
 
 	struct BrainfuckInterpreterTokens
@@ -82,6 +96,8 @@ namespace yabi
         constexpr static const type while_loop_begin = '[';
         constexpr static const type while_loop_end = ']';
         constexpr static const type stack_debug_symbol = '#';
+
+        constexpr static const Error other_tokens_are_comments = Error::ignored;
 	};
 
     typedef std::ifstream BrainfuckInterpreterFile;
