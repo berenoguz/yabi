@@ -33,15 +33,15 @@ Installing ```yabi``` binary and yabi C++ headers is as simple as:
 Nothing about brainfuck is hardcoded in yabi library. Every token defined as a ```constexpr``` value. Interpreter is generically created as:
 ``` cpp
 template<Size size>
-	using BrainfuckInterpreter = Interpreter<BrainfuckInterpreterStack<size>,
-                                             BrainfuckInterpreterTokens,
-                                             BrainfuckInterpreterBuffer,
-                                             BrainfuckInterpreterVector,
-                                             BrainfuckInterpreterFile,
-                                             BrainfuckInterpreterState,
-                                             BrainfuckInterpreterPointer,
-                                             BrainfuckInterpreterFlag,
-                                             BrainfuckInterpreterSize>;
+using BrainfuckInterpreter = Interpreter<BrainfuckInterpreterStack<size>,
+                                         BrainfuckInterpreterTokens,
+                                         BrainfuckInterpreterBuffer,
+                                         BrainfuckInterpreterVector,
+                                         BrainfuckInterpreterFile,
+                                         BrainfuckInterpreterState,
+                                         BrainfuckInterpreterPointer,
+                                         BrainfuckInterpreterFlag,
+                                         BrainfuckInterpreterSize>;
 ```
 
 Here, tokens are defined as:
