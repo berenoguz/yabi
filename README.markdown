@@ -29,6 +29,14 @@ Installing ```yabi``` binary and yabi C++ headers is as simple as:
 	make
 	sudo make install
 
+If you want to clean the source directory from binary file:
+	
+	make clean
+	
+You can also uninstall binary and C++ library header files by:
+
+	sudo make uninstall
+
 ## API
 Nothing about brainfuck is hardcoded in yabi library. Every token defined as a ```constexpr``` value. Interpreter is generically created as:
 ``` cpp
