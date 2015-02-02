@@ -31,6 +31,8 @@ namespace yabi
 			 template<class Type> class ContainerType,
 			 typename FileType,
 			 typename StateType,
+			 typename InputChannelType,
+			 typename OutputChannelType,
 			 typename PointerType,
 			 typename FlagType,
 			 typename SizeType,
@@ -43,7 +45,7 @@ namespace yabi
 			typedef typename TokensType::type UnderlyingTypeOfTokensType;
 			typedef BasicBufferType<UnderlyingTypeOfTokensType> BufferType;
 
-			const StateType process(const BufferType& buffer)
+			const StateType process(const BufferType& buffer, InputChannelType& input, OutputChannelType& output)
 			{
 			    StateType interpreter_state = StateType::success;
 				PointerType pointer = 0;
@@ -92,7 +94,7 @@ namespace yabi
                              {
                                  case static_cast<UnderlyingTypeOfTokensType>(TokensType::output):
                                  {
-                                     std::cout << stack[pointer];
+                                     output << stack[pointer];
                                      break;
                                  }
                              }
@@ -100,7 +102,7 @@ namespace yabi
                              {
                                  case static_cast<UnderlyingTypeOfTokensType>(TokensType::input):
                                  {
-                                     std::cin >> stack[pointer];
+                                     input >> stack[pointer];
                                      break;
                                  }
                              }
@@ -139,9 +141,9 @@ namespace yabi
                              {
                                  case static_cast<UnderlyingTypeOfTokensType>(TokensType::stack_debug_symbol):
                                  {
-                                     std::cout << "Position of code: " << iterator - buffer.begin() << std::endl;
-                                     std::cout << "Pointer: " << pointer << std::endl;
-                                     std::cout << "Value at pointer: " << (int)stack[pointer] << std::endl;
+                                     output << "Position of code: " << iterator - buffer.begin() << std::endl;
+                                     output << "Pointer: " << pointer << std::endl;
+                                     output << "Value at pointer: " << (int)stack[pointer] << std::endl;
                                      break;
                                  }
                              }
@@ -188,12 +190,12 @@ namespace yabi
 			}
 
 		public:
-			const StateType operator () (const BufferType& buffer)
+			const StateType operator () (const BufferType& buffer, InputChannelType& input = std::cin, OutputChannelType& output = std::cout)
 			{
-				return this->process(buffer);
+				return this->process(buffer, input, output);
 			}
 
-			const StateType operator () (FileType& file)
+			const StateType operator () (FileType& file, InputChannelType& input = std::cin, OutputChannelType& output = std::cout)
 			{
 				BufferType buffer;
 			    UnderlyingTypeOfTokensType value;
@@ -201,7 +203,7 @@ namespace yabi
                 {
                     buffer.push_back(value);
                 }
-				return this->process(buffer);
+				return this->process(buffer, input, output);
 			}
 	};
 
@@ -212,6 +214,8 @@ namespace yabi
                                              BrainfuckInterpreterContainer ,
                                              BrainfuckInterpreterFile,
                                              BrainfuckInterpreterState,
+                                             decltype(std::cin),
+                                             decltype(std::cout),
                                              BrainfuckInterpreterPointer,
                                              BrainfuckInterpreterFlag,
                                              BrainfuckInterpreterSize>;
