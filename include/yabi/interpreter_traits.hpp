@@ -22,24 +22,43 @@
 #ifndef YABI_INTERPRETER_TRAITS_HPP
 #define YABI_INTERPRETER_TRAITS_HPP
 
-template<class Type>
-struct is_type
+namespace yabi
 {
-    constexpr static const bool value = true;
-};
-
-template<class TokensType>
-struct has_move_right
-{
-    constexpr static const bool value(decltype(TokensType::move_right) a = 0)
+    template<typename Type>
+    struct is_type
     {
-        return true;
+        constexpr static bool value = true;
+        typedef Type type;
+    };
+
+    #define has_(func) \
+    template<typename Interpreter> \
+    struct has_ ## func \
+    { \
+        private: \
+            template<typename Type> \
+            static constexpr auto check(Type*) -> typename std::integral_constant<bool,is_type<decltype(Type:: func )>::value>; \
+             \
+            template<typename> \
+            static constexpr std::false_type check(...); \
+             \
+            typedef decltype(check<Interpreter>(0)) type; \
+             \
+        public: \
+            static constexpr bool value = type::value; \
     }
 
-    constexpr static const bool value()
-    {
-        return false;
-    }
-};
+    has_(move_right);
+    has_(move_left);
+    has_(increment);
+    has_(decrement);
+    has_(output);
+    has_(input);
+    has_(while_loop_begin);
+    has_(while_loop_end);
+    has_(stack_debug_symbol);
+
+    #undef has_
+}
 
 #endif // YABI_INTERPRETER_TRAITS_HPP
