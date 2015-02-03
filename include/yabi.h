@@ -54,24 +54,23 @@ namespace yabi
 				SizeType while_lock_count = 0;
 				for(typename BufferType::const_iterator iterator = buffer.begin(); iterator != buffer.end(); ++iterator)
 				{
-				    std::cout << *iterator << std::endl;
-                    if(!while_locked)
-                    {
-                        std::conditional<has_increment<TokensType>::value,Increment<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
-                        std::conditional<has_decrement<TokensType>::value,Decrement<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
-                        std::conditional<has_move_right<TokensType>::value,MoveRight<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
-                        std::conditional<has_move_left<TokensType>::value,MoveLeft<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
-                        std::conditional<has_output<TokensType>::value,Output<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,stack,pointer);
-                        std::conditional<has_input<TokensType>::value,Input<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,input,stack,pointer);
-                        std::conditional<has_while_loop_begin<TokensType>::value,WhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations,while_locked,while_lock_count);
-                        std::conditional<has_while_loop_end<TokensType>::value,WhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations);
-                        std::conditional<has_stack_debug_symbol<TokensType>::value,StackDebugSymbol<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,buffer,stack,pointer);
-                    }
-                    else if(while_locked)
-                    {
-                        std::conditional<has_while_loop_end<TokensType>::value,CheckIfWhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_locked,while_lock_count);
-                        std::conditional<has_while_loop_begin<TokensType>::value,CheckIfWhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_lock_count);
-                    }
+		                    if(!while_locked)
+		                    {
+		                        std::conditional<has_increment<TokensType>::value,Increment<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
+		                        std::conditional<has_decrement<TokensType>::value,Decrement<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
+		                        std::conditional<has_move_right<TokensType>::value,MoveRight<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
+		                        std::conditional<has_move_left<TokensType>::value,MoveLeft<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
+		                        std::conditional<has_output<TokensType>::value,Output<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,stack,pointer);
+		                        std::conditional<has_input<TokensType>::value,Input<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,input,stack,pointer);
+		                        std::conditional<has_while_loop_begin<TokensType>::value,WhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations,while_locked,while_lock_count);
+		                        std::conditional<has_while_loop_end<TokensType>::value,WhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations);
+		                        std::conditional<has_stack_debug_symbol<TokensType>::value,StackDebugSymbol<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,buffer,stack,pointer);
+		                    }
+		                    else if(while_locked)
+		                    {
+		                        std::conditional<has_while_loop_end<TokensType>::value,CheckIfWhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_locked,while_lock_count);
+		                        std::conditional<has_while_loop_begin<TokensType>::value,CheckIfWhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_lock_count);
+		                    }
 				}
 
 			 	return interpreter_state;
@@ -86,11 +85,11 @@ namespace yabi
 			const StateType operator () (FileType& file, InputChannelType& input = std::cin, OutputChannelType& output = std::cout)
 			{
 				BufferType buffer;
-			    typename TokensType::RepresentativeType value;
-                while(file >> value)
-                {
-                    std::conditional<has_bit_size<TokensType>::value,BitsFromFileToBuffer<TokensType>,ElementsFromFileToBuffer<TokensType>>::type::instruct(buffer,value);
-                }
+			 	typename TokensType::RepresentativeType value;
+		                while(file >> value)
+		                {
+		                    std::conditional<has_bit_size<TokensType>::value,BitsFromFileToBuffer<TokensType>,ElementsFromFileToBuffer<TokensType>>::type::instruct(buffer,value);
+		                }
 				return this->process(buffer, input, output);
 			}
 	};
