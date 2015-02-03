@@ -35,7 +35,8 @@
 #include <type_traits>
 #include <initializer_list>
 #include <stack>
-#include <stdint.h>
+#include <cstdint>
+#include <cstring>
 
 namespace yabi
 {
@@ -138,6 +139,39 @@ namespace yabi
         constexpr static const Error other_tokens_are_comments = Error::ignored;
 
         constexpr static const Size bit_size = UnaryBitSize;
+	};
+
+	/// Ook Interpreter types
+	typedef char* OokInterpreterFundamentalType;
+	template<Size size> using OokInterpreterStack = Array<Byte,size>;
+	template<typename Type> using OokInterpreterContainer = Stack<Type>;
+	typedef Pointer OokInterpreterPointer;
+	typedef Flag OokInterpreterFlag;
+	typedef Size OokInterpreterSize;
+	enum class OokInterpreterState : int
+	{
+		success = 0,
+		failure
+	};
+
+    typedef std::ifstream OokInterpreterFile;
+    template<class Type> using OokInterpreterBuffer = Vector<typename std::remove_pointer<OokInterpreterFundamentalType>::type>;
+    template<class Type> using OokInterpreterStream = std::istreambuf_iterator<Type>;
+
+	struct OokInterpreterTokens
+	{
+	    typedef OokInterpreterFundamentalType type;
+	    typedef typename std::remove_pointer<type>::type RepresentativeType;
+	    constexpr static const type move_right = "Ook. Ook?";
+	    constexpr static const type move_left = "Ook? Ook.";
+	    constexpr static const type increment = "Ook. Ook.";
+        constexpr static const type decrement = "Ook! Ook!";
+	    constexpr static const type output = "Ook! Ook.";
+	    constexpr static const type input = "Ook. Ook!";
+        constexpr static const type while_loop_begin = "Ook! Ook?";
+        constexpr static const type while_loop_end = "Ook? Ook!";
+
+        constexpr static const Error other_tokens_are_comments = Error::ignored;
 	};
 }
 
