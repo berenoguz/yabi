@@ -54,6 +54,7 @@ namespace yabi
 				SizeType while_lock_count = 0;
 				for(typename BufferType::const_iterator iterator = buffer.begin(); iterator != buffer.end(); ++iterator)
 				{
+				    std::cout << *iterator << std::endl;
                     if(!while_locked)
                     {
                         std::conditional<has_increment<TokensType>::value,Increment<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
@@ -86,7 +87,7 @@ namespace yabi
 			{
 				BufferType buffer;
 			    typename TokensType::RepresentativeType value;
-				while(file >> value)
+                while(file >> value)
                 {
                     std::conditional<has_bit_size<TokensType>::value,BitsFromFileToBuffer<TokensType>,ElementsFromFileToBuffer<TokensType>>::type::instruct(buffer,value);
                 }
@@ -122,8 +123,22 @@ namespace yabi
                                          UnaryInterpreterFlag,
                                          UnaryInterpreterSize>;
 
+    template<Size size>
+	using OokInterpreter = Interpreter<OokInterpreterStack<size>,
+                                         OokInterpreterTokens,
+                                         OokInterpreterBuffer,
+                                         OokInterpreterContainer ,
+                                         OokInterpreterFile,
+                                         OokInterpreterState,
+                                         decltype(std::cin),
+                                         decltype(std::cout),
+                                         OokInterpreterPointer,
+                                         OokInterpreterFlag,
+                                         OokInterpreterSize>;
+
     typedef BrainfuckInterpreterFile BrainfuckFile;
     typedef UnaryInterpreterFile UnaryFile;
+    typedef OokInterpreterFile OokFile;
 }
 
 #endif // YABI_H
