@@ -83,6 +83,9 @@ namespace yabi
 }
 ```
 
+## Other Languages
+*Yabi*, unlike its name, is not a project only for brainfuck language. In fact, it is an attempt to generically create interpreters of Turing-complete languages that are based on specific tokens. Currently, brainfuck dialects *Unary* and *Ook!* are partially-implemented (and are under-development). Yabi will also attempt to generate interpreters of languages with more complex syntax, such as DNA sequences. By assigning a function to each (constexpr) token, yabi will try to generate the interpreter of such a language.
+
 ## ToDo
 Yabi is still in its infancy. It will be working as a compile-time generated interpreter. Thus, not only the definitions of tokens, but also their behaviors will be generically parametric.
 
