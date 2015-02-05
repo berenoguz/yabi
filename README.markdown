@@ -14,11 +14,13 @@ Binary version of yabi is a quite simple program. It's essentially as simple as:
 
 int main(int argc, char* argv[])
 {
-	yabi::BrainfuckFile file(argv[1],yabi::BrainfuckFile::in); // Load file in first argument
+	yabi::BrainfuckFile file(argv[1],yabi::BrainfuckFile::in); /// Load file in first argument
 
-	yabi::BrainfuckInterpreter<1024> bf; // Create a BrainfuckInterpreter with 1024 byte stack size
+	yabi::BrainfuckInterpreter<1024> bf(file); /// Create a BrainfuckInterpreter with 1024 byte stack size,
+                                               	   /// initialized vy default input and output channels
+                                                   /// and a buffer copied from `file`
 
-	return static_cast<int>(bf(file)); // Interpret file and return interpreter's state
+	return static_cast<int>(bf.interpret()); /// Interpret file and return interpreter's state
 }
 
 ```
@@ -81,6 +83,15 @@ namespace yabi
 		constexpr static const Error other_tokens_are_comments = Error::ignored; // Other characters are ignored
 	};
 }
+```
+
+## Supported Brainfuck Dialects
+*Yabi* is designed to support some of the brainfuck dialects and some other languages in its library. Currently only `brainfuck` and `Ook!` languages are fully implemented. `Unary` is also partially-implemented. One create an `Ook!` interpreter bu using:
+
+```
+yabi::OokInterpreter<STACK_SIZE> ook/*(optional_buffer)*/;
+ook(new_buffer);
+auto state = ook.interpret(); // interpret current buffer and save state
 ```
 
 ## Other Languages
