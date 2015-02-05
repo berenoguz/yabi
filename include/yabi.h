@@ -40,10 +40,14 @@ namespace yabi
 	class Interpreter
 	{
 		private:
-			StackType stack;
-
 			typedef typename TokensType::type UnderlyingTypeOfTokensType;
 			typedef BasicBufferType<UnderlyingTypeOfTokensType> BufferType;
+
+
+			StackType stack;
+			BufferType buffer;
+			InputChannelType& input;
+			OutputChannelType& output;
 
 			const StateType process(const BufferType& buffer, InputChannelType& input, OutputChannelType& output)
 			{
@@ -54,43 +58,86 @@ namespace yabi
 				SizeType while_lock_count = 0;
 				for(typename BufferType::const_iterator iterator = buffer.begin(); iterator != buffer.end(); ++iterator)
 				{
-		                    if(!while_locked)
-		                    {
-		                        std::conditional<has_increment<TokensType>::value,Increment<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
-		                        std::conditional<has_decrement<TokensType>::value,Decrement<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
-		                        std::conditional<has_move_right<TokensType>::value,MoveRight<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
-		                        std::conditional<has_move_left<TokensType>::value,MoveLeft<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
-		                        std::conditional<has_output<TokensType>::value,Output<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,stack,pointer);
-		                        std::conditional<has_input<TokensType>::value,Input<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,input,stack,pointer);
-		                        std::conditional<has_while_loop_begin<TokensType>::value,WhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations,while_locked,while_lock_count);
-		                        std::conditional<has_while_loop_end<TokensType>::value,WhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations);
-		                        std::conditional<has_stack_debug_symbol<TokensType>::value,StackDebugSymbol<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,buffer,stack,pointer);
-		                    }
-		                    else if(while_locked)
-		                    {
-		                        std::conditional<has_while_loop_end<TokensType>::value,CheckIfWhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_locked,while_lock_count);
-		                        std::conditional<has_while_loop_begin<TokensType>::value,CheckIfWhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_lock_count);
-		                    }
+                    if(!while_locked)
+                    {
+                        std::conditional<has_increment<TokensType>::value,Increment<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
+                        std::conditional<has_decrement<TokensType>::value,Decrement<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer);
+                        std::conditional<has_move_right<TokensType>::value,MoveRight<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
+                        std::conditional<has_move_left<TokensType>::value,MoveLeft<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,pointer);
+                        std::conditional<has_output<TokensType>::value,Output<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,stack,pointer);
+                        std::conditional<has_input<TokensType>::value,Input<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,input,stack,pointer);
+                        std::conditional<has_while_loop_begin<TokensType>::value,WhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations,while_locked,while_lock_count);
+                        std::conditional<has_while_loop_end<TokensType>::value,WhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,stack,pointer,jump_locations);
+                        std::conditional<has_stack_debug_symbol<TokensType>::value,StackDebugSymbol<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,output,buffer,stack,pointer);
+                    }
+                    else if(while_locked)
+                    {
+                        std::conditional<has_while_loop_end<TokensType>::value,CheckIfWhileLoopEnd<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_locked,while_lock_count);
+                        std::conditional<has_while_loop_begin<TokensType>::value,CheckIfWhileLoopBegin<TokensType>,EmptyInstruction<TokensType>>::type::instruct(iterator,while_lock_count);
+                    }
 				}
 
 			 	return interpreter_state;
 			}
 
 		public:
-			const StateType operator () (const BufferType& buffer, InputChannelType& input = std::cin, OutputChannelType& output = std::cout)
+			void operator () (const BufferType& buffer, InputChannelType& input = std::cin, OutputChannelType& output = std::cout)
 			{
-				return this->process(buffer, input, output);
+			    this->buffer = buffer;
+			    this->input = input;
+			    this->output = output;
 			}
 
-			const StateType operator () (FileType& file, InputChannelType& input = std::cin, OutputChannelType& output = std::cout)
+			void operator () (FileType& file)
 			{
 				BufferType buffer;
 			 	typename TokensType::RepresentativeType value;
-		                while(file >> value)
-		                {
-		                    std::conditional<has_bit_size<TokensType>::value,BitsFromFileToBuffer<TokensType>,ElementsFromFileToBuffer<TokensType>>::type::instruct(buffer,value);
-		                }
-				return this->process(buffer, input, output);
+			 	file >> std::noskipws;
+                while(file >> value)
+                {
+                    std::conditional<has_bit_size<TokensType>::value,BitsFromFileToBuffer<TokensType>,ElementsFromFileToBuffer<TokensType>>::type::instruct(buffer,value);
+                }
+			    this->buffer = buffer;
+			}
+
+			Interpreter(const BufferType& buffer, InputChannelType& in = std::cin, OutputChannelType& out = std::cout):input(in),output(out)
+			{
+                for(auto& element: stack)
+                {
+                    element = 0;
+                }
+
+			    this->buffer = buffer;
+			}
+
+			Interpreter(FileType& file, InputChannelType& in = std::cin, OutputChannelType& out = std::cout):input(in),output(out)
+			{
+                for(auto& element: stack)
+                {
+                    element = 0;
+                }
+
+				BufferType buffer;
+			 	typename TokensType::RepresentativeType value;
+			 	file >> std::noskipws;
+                while(file >> value)
+                {
+                    std::conditional<has_bit_size<TokensType>::value,BitsFromFileToBuffer<TokensType>,ElementsFromFileToBuffer<TokensType>>::type::instruct(buffer,value);
+                }
+			    this->buffer = buffer;
+			}
+
+			Interpreter(InputChannelType& in = std::cin, OutputChannelType& out = std::cout):input(in),output(out)
+			{
+                for(auto& element: stack)
+                {
+                    element = 0;
+                }
+			}
+
+			const StateType interpret()
+			{
+				return this->process(this->buffer, this->input, this->output);
 			}
 	};
 
@@ -113,7 +160,7 @@ namespace yabi
 	using UnaryInterpreter = Interpreter<UnaryInterpreterStack<size>,
                                          UnaryInterpreterTokens,
                                          UnaryInterpreterBuffer,
-                                         UnaryInterpreterContainer ,
+                                         UnaryInterpreterContainer,
                                          UnaryInterpreterFile,
                                          UnaryInterpreterState,
                                          decltype(std::cin),
@@ -126,7 +173,7 @@ namespace yabi
 	using OokInterpreter = Interpreter<OokInterpreterStack<size>,
                                          OokInterpreterTokens,
                                          OokInterpreterBuffer,
-                                         OokInterpreterContainer ,
+                                         OokInterpreterContainer,
                                          OokInterpreterFile,
                                          OokInterpreterState,
                                          decltype(std::cin),
