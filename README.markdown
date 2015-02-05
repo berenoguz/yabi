@@ -85,6 +85,9 @@ namespace yabi
 }
 ```
 
+## Dependencies
+Other than standard C++ library, yabi does not depend on any library. However, due to the generic nature of the library, yabi highly uses C++ template metaprogramming; thus a C++ compiler that support `C++11` and template metaprogramming is required.
+
 ## Supported Brainfuck Dialects
 *Yabi* is designed to support some of the brainfuck dialects and some other languages in its library. Currently only `brainfuck` and `Ook!` languages are fully implemented. `Unary` is also partially-implemented. One create an `Ook!` interpreter by using:
 
