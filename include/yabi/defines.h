@@ -161,7 +161,7 @@ namespace yabi
 	struct OokInterpreterTokens
 	{
 	    typedef OokInterpreterFundamentalType type;
-	    typedef typename std::remove_pointer<type>::type RepresentativeType;
+	    typedef uint8_t RepresentativeType;
 	    constexpr static const type move_right = "Ook. Ook?";
 	    constexpr static const type move_left = "Ook? Ook.";
 	    constexpr static const type increment = "Ook. Ook.";
@@ -170,6 +170,7 @@ namespace yabi
 	    constexpr static const type input = "Ook. Ook!";
         constexpr static const type while_loop_begin = "Ook! Ook?";
         constexpr static const type while_loop_end = "Ook? Ook!";
+        constexpr static const type stack_debug_symbol = "#";
 
         constexpr static const Error other_tokens_are_comments = Error::ignored;
 	};
