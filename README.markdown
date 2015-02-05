@@ -86,7 +86,7 @@ namespace yabi
 ```
 
 ## Supported Brainfuck Dialects
-*Yabi* is designed to support some of the brainfuck dialects and some other languages in its library. Currently only `brainfuck` and `Ook!` languages are fully implemented. `Unary` is also partially-implemented. One create an `Ook!` interpreter bu using:
+*Yabi* is designed to support some of the brainfuck dialects and some other languages in its library. Currently only `brainfuck` and `Ook!` languages are fully implemented. `Unary` is also partially-implemented. One create an `Ook!` interpreter by using:
 
 ```
 yabi::OokInterpreter<STACK_SIZE> ook/*(optional_buffer)*/;
