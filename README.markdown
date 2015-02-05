@@ -1,7 +1,7 @@
 # <b>Y</b>et <b>A</b>nother <b>B</b>rainfuck <b>I</b>mplementation
 *Yabi*, unlike its name, is not just a brainfuck interpreter. It also attempts to provide a generic API to generate brainfuck-like language interpreters on compile time.
 
-Currently, ```yabi``` is in alpha version; however it is able to interpret every brainfuck program, stably.
+Currently, ```yabi``` is in alpha version; however it is able to interpret every `brainfuck` and `Ook!` program, stably.
 
 ## Usage
 After installing yabi, you can just call the brainfuck file as the binary's first argument:
