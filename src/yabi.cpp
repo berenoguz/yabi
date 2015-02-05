@@ -23,9 +23,12 @@
 
 int main(int argc, char* argv[])
 {
+
 	yabi::BrainfuckFile file(argv[1],yabi::BrainfuckFile::in); /// Load file in first argument
 
-	yabi::BrainfuckInterpreter<1024> bf; /// Create a BrainfuckInterpreter with 2014 byte stack size
+	yabi::BrainfuckInterpreter<1024> bf(file); /// Create a BrainfuckInterpreter with 1024 byte stack size,
+                                               	   /// initialized vy default input and output channels
+                                                   /// and a buffer copied from `file`
 
-	return static_cast<int>(bf(file)); /// Interpret file and return interpreter's state
+	return static_cast<int>(bf.interpret()); /// Interpret file and return interpreter's state
 }
