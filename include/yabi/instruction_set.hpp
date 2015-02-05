@@ -93,7 +93,7 @@ namespace yabi
     struct Increment
     {
         template<class IteratorType, class StackType, class PointerType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<!std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, StackType& stack, const PointerType& pointer)
+        static inline typename std::enable_if<!std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, StackType& stack, const PointerType& pointer)
         {
             if(*iterator == static_cast<typename TokensType::type>(TokensType::increment))
             {
@@ -104,16 +104,21 @@ namespace yabi
         template<class IteratorType, class StackType, class PointerType, class SomeType = typename TokensType::type>
         static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, StackType& stack, const PointerType& pointer)
         {
-            IteratorType temp = iterator;
-            for(Integer i = 0; i < std::strlen(static_cast<typename TokensType::type>(TokensType::increment)); i++, iterator++)
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::increment);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
             {
-                if(*iterator == static_cast<typename TokensType::type>(TokensType::increment)[i])
+                if(*temp_iterator != token[i])
                 {
-                    //std::cout << *iterator;
-                    stack[pointer]++;
+                    break;
                 }
             }
-            iterator = temp;
+            if(i == std::strlen(token))
+            {
+                stack[pointer]++;
+                iterator = temp_iterator-1;
+            }
         }
     };
 
@@ -130,11 +135,22 @@ namespace yabi
         }
 
         template<class IteratorType, class StackType, class PointerType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, StackType& stack, const PointerType& pointer)
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, StackType& stack, const PointerType& pointer)
         {
-            //if(*iterator == static_cast<typename TokensType::type>(TokensType::decrement))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::decrement);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
             {
-                //stack[pointer]--;
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
+            {
+                stack[pointer]--;
+                iterator = temp_iterator-1;
             }
         }
     };
@@ -152,11 +168,22 @@ namespace yabi
         }
 
         template<class IteratorType, class PointerType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, PointerType& pointer)
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, PointerType& pointer)
         {
-            //if(*iterator == static_cast<typename TokensType::type>(TokensType::move_right))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::move_right);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
             {
-                //pointer++;
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
+            {
+                pointer++;
+                iterator = temp_iterator-1;
             }
         }
     };
@@ -174,11 +201,22 @@ namespace yabi
         }
 
         template<class IteratorType, class PointerType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, PointerType& pointer)
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, PointerType& pointer)
         {
-            //if(*iterator == static_cast<typename TokensType::type>(TokensType::move_left))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::move_left);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
             {
-                //pointer--;
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
+            {
+                pointer--;
+                iterator = temp_iterator-1;
             }
         }
     };
@@ -196,11 +234,22 @@ namespace yabi
         }
 
         template<class IteratorType, class OutputChannelType, class StackType, class PointerType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, OutputChannelType& output, const StackType& stack, const PointerType& pointer)
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, OutputChannelType& output, const StackType& stack, const PointerType& pointer)
         {
-            //if(*iterator == static_cast<typename TokensType::type>(TokensType::output))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::output);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
             {
-                //output << stack[pointer];
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
+            {
+                output << stack[pointer];
+                iterator = temp_iterator-1;
             }
         }
     };
@@ -218,11 +267,22 @@ namespace yabi
         }
 
         template<class IteratorType, class InputChannelType, class StackType, class PointerType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, InputChannelType& input, StackType& stack, const PointerType& pointer)
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, InputChannelType& input, StackType& stack, const PointerType& pointer)
         {
-            //if(*iterator == static_cast<typename TokensType::type>(TokensType::input))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::input);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
             {
-                //input >> stack[pointer];
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
+            {
+                input >> stack[pointer];
+                iterator = temp_iterator-1;
             }
         }
     };
@@ -248,20 +308,31 @@ namespace yabi
         }
 
         template<class IteratorType, class StackType, class PointerType, class ContainerType, class FlagType, class IntegralType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, const StackType& stack, const PointerType& pointer, ContainerType& jump_locations, FlagType& locked, IntegralType& lock_count)
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, const StackType& stack, const PointerType& pointer, ContainerType& jump_locations, FlagType& locked, IntegralType& lock_count)
         {
-            /*if(*iterator == static_cast<typename TokensType::type>(TokensType::while_loop_begin))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::while_loop_begin);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
+            {
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
             {
                 if(stack[pointer])
                 {
-                    jump_locations.push(iterator);
+                    jump_locations.push(temp_iterator-1);
                 }
                 else
                 {
                     locked = true;
                     lock_count++;
                 }
-            }*/
+                iterator = temp_iterator-1;
+            }
         }
     };
 
@@ -287,7 +358,17 @@ namespace yabi
         template<class IteratorType, class StackType, class PointerType, class ContainerType, class SomeType = typename TokensType::type>
         static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, const StackType& stack, const PointerType& pointer, ContainerType& jump_locations)
         {
-            /*if(*iterator == static_cast<typename TokensType::type>(TokensType::while_loop_end))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::while_loop_end);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
+            {
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
             {
                 if(stack[pointer])
                 {
@@ -296,8 +377,42 @@ namespace yabi
                 else
                 {
                     jump_locations.pop();
+                    iterator = temp_iterator-1;
                 }
-            }*/
+            }
+        }
+    };
+
+    template<class TokensType>
+    struct CheckIfWhileLoopBegin
+    {
+        template<class IteratorType, class IntegralType, class SomeType = typename TokensType::type>
+        static inline typename std::enable_if<!std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, IntegralType& lock_count)
+        {
+            if(*iterator == static_cast<typename TokensType::type>(TokensType::while_loop_begin))
+            {
+                lock_count++;
+            }
+        }
+
+        template<class IteratorType, class IntegralType, class SomeType = typename TokensType::type>
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, IntegralType& lock_count)
+        {
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::while_loop_begin);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
+            {
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
+            {
+                lock_count++;
+                iterator = temp_iterator-1;
+            }
         }
     };
 
@@ -317,36 +432,25 @@ namespace yabi
         }
 
         template<class IteratorType, class FlagType, class IntegralType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, FlagType& locked, IntegralType& lock_count)
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, FlagType& locked, IntegralType& lock_count)
         {
-            //if(*iterator == static_cast<typename TokensType::type>(TokensType::while_loop_end))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::while_loop_end);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
             {
-                //if(--lock_count == 0)
+                if(*temp_iterator != token[i])
                 {
-                    //locked = false;
+                    break;
                 }
             }
-        }
-    };
-
-    template<class TokensType>
-    struct CheckIfWhileLoopBegin
-    {
-        template<class IteratorType, class IntegralType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<!std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, IntegralType& lock_count)
-        {
-            if(*iterator == static_cast<typename TokensType::type>(TokensType::while_loop_begin))
+            if(i == std::strlen(token))
             {
-                lock_count++;
-            }
-        }
-
-        template<class IteratorType, class IntegralType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, IntegralType& lock_count)
-        {
-            //if(*iterator == static_cast<typename TokensType::type>(TokensType::while_loop_begin))
-            {
-                //lock_count++;
+                if(--lock_count == 0)
+                {
+                    locked = false;
+                }
+                iterator = temp_iterator-1;
             }
         }
     };
@@ -366,13 +470,24 @@ namespace yabi
         }
 
         template<class IteratorType, class OutputChannelType, class BufferType, class StackType, class PointerType, class SomeType = typename TokensType::type>
-        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(const IteratorType& iterator, OutputChannelType& output, const BufferType& buffer, const StackType& stack, const PointerType& pointer)
+        static inline typename std::enable_if<std::is_pointer<SomeType>::value,void>::type instruct(IteratorType& iterator, OutputChannelType& output, const BufferType& buffer, const StackType& stack, const PointerType& pointer)
         {
-            //if(*iterator == static_cast<typename TokensType::type>(TokensType::stack_debug_symbol))
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            constexpr static const typename TokensType::type token = static_cast<typename TokensType::type>(TokensType::stack_debug_symbol);
+            for(i = 0; i < std::strlen(token); i++, temp_iterator++)
             {
-                //output << "Position of code: " << iterator - buffer.begin() << std::endl;
-                //output << "Pointer: " << pointer << std::endl;
-                //output << "Value at pointer: " << (int)stack[pointer] << std::endl;
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == std::strlen(token))
+            {
+                output << "Position of code: " << iterator - buffer.begin() << std::endl;
+                output << "Pointer: " << pointer << std::endl;
+                output << "Value at pointer: " << (int)stack[pointer] << std::endl;
+                iterator = temp_iterator-1;
             }
         }
     };
