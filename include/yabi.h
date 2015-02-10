@@ -81,15 +81,18 @@ namespace yabi
 			}
 
 		public:
-			void operator () (const BufferType& buffer, InputChannelType& input = std::cin, OutputChannelType& output = std::cout)
+			void operator () (const BufferType& buffer)
 			{
 			    this->buffer = buffer;
-			    this->input = input;
-			    this->output = output;
 			}
 
 			void operator () (FileType& file)
 			{
+                for(auto& element: stack)
+                {
+                    element = 0;
+                }
+
 				BufferType buffer;
 			 	typename TokensType::RepresentativeType value;
 			 	file >> std::noskipws;
@@ -102,29 +105,12 @@ namespace yabi
 
 			Interpreter(const BufferType& buffer, InputChannelType& in = std::cin, OutputChannelType& out = std::cout):input(in),output(out)
 			{
-                for(auto& element: stack)
-                {
-                    element = 0;
-                }
-
-			    this->buffer = buffer;
+                this->operator()(buffer);
 			}
 
 			Interpreter(FileType& file, InputChannelType& in = std::cin, OutputChannelType& out = std::cout):input(in),output(out)
 			{
-                for(auto& element: stack)
-                {
-                    element = 0;
-                }
-
-				BufferType buffer;
-			 	typename TokensType::RepresentativeType value;
-			 	file >> std::noskipws;
-                while(file >> value)
-                {
-                    std::conditional<has_bit_size<TokensType>::value,BitsFromFileToBuffer<TokensType>,ElementsFromFileToBuffer<TokensType>>::type::instruct(buffer,value);
-                }
-			    this->buffer = buffer;
+                this->operator()(file);
 			}
 
 			Interpreter(InputChannelType& in = std::cin, OutputChannelType& out = std::cout):input(in),output(out)
