@@ -67,14 +67,9 @@ namespace yabi
         template<class BufferType, class ValueType>
         static inline void instruct(BufferType& buffer, const ValueType& value)
         {
-            for(Integer i = 0; (i+TokensType::bit_size) <= 8; i+= TokensType::bit_size)
+            for(Integer i = 0; i < sizeof(value)*8; i++)
             {
-                typename TokensType::type bitset;
-                for(Integer j=0; j < TokensType::bit_size; j++)
-                {
-                    bitset[j] = std::bitset<sizeof(ValueType)*8>(value)[(i+j)%8];
-                }
-                buffer.push_back(bitset);
+                buffer.push_back(Bitset<sizeof(value)*8>(value)[i]);
             }
         }
     };
@@ -120,6 +115,30 @@ namespace yabi
                 iterator = temp_iterator-1;
             }
         }
+
+        template<class IteratorType, class StackType, class PointerType, class SomeType = has_bit_size<TokensType>>
+        static inline typename std::enable_if<SomeType::value,void>::type instruct(IteratorType& iterator, StackType& stack, const PointerType& pointer)
+        {
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            Vector<bool> token;
+            for(Integer j = 0; j < TokensType::bit_size; j++)
+            {
+                token.push_back(Bitset<TokensType::bit_size>(TokensType::increment)[j]);
+            }
+            for(i = 0; i < TokensType::bit_size; i++, temp_iterator++)
+            {
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == TokensType::bit_size)
+            {
+                stack[pointer]++;
+                iterator = temp_iterator-1;
+            }
+        }
     };
 
     template<class TokensType>
@@ -148,6 +167,30 @@ namespace yabi
                 }
             }
             if(i == std::strlen(token))
+            {
+                stack[pointer]--;
+                iterator = temp_iterator-1;
+            }
+        }
+
+        template<class IteratorType, class StackType, class PointerType, class SomeType = has_bit_size<TokensType>>
+        static inline typename std::enable_if<SomeType::value,void>::type instruct(IteratorType& iterator, StackType& stack, const PointerType& pointer)
+        {
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            Vector<bool> token;
+            for(Integer j = 0; j < TokensType::bit_size; j++)
+            {
+                token.push_back(Bitset<TokensType::bit_size>(TokensType::decrement)[j]);
+            }
+            for(i = 0; i < TokensType::bit_size; i++, temp_iterator++)
+            {
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == TokensType::bit_size)
             {
                 stack[pointer]--;
                 iterator = temp_iterator-1;
@@ -186,6 +229,32 @@ namespace yabi
                 iterator = temp_iterator-1;
             }
         }
+
+        template<class IteratorType, class PointerType, class SomeType = has_bit_size<TokensType>>
+        static inline typename std::enable_if<SomeType::value,void>::type instruct(IteratorType& iterator, PointerType& pointer)
+        {
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            Vector<bool> token;
+            for(Integer j = 0; j < TokensType::bit_size; j++)
+            {
+                token.push_back(Bitset<TokensType::bit_size>(TokensType::move_right)[j]);
+            }
+            for(i = 0; i < TokensType::bit_size; i++, temp_iterator++)
+            {
+                std::cout << *temp_iterator;
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            std::cout << std::endl;
+            if(i == TokensType::bit_size)
+            {
+                pointer++;
+                iterator = temp_iterator-1;
+            }
+        }
     };
 
     template<class TokensType>
@@ -214,6 +283,30 @@ namespace yabi
                 }
             }
             if(i == std::strlen(token))
+            {
+                pointer--;
+                iterator = temp_iterator-1;
+            }
+        }
+
+        template<class IteratorType, class PointerType, class SomeType = has_bit_size<TokensType>>
+        static inline typename std::enable_if<SomeType::value,void>::type instruct(IteratorType& iterator, PointerType& pointer)
+        {
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            Vector<bool> token;
+            for(Integer j = 0; j < TokensType::bit_size; j++)
+            {
+                token.push_back(Bitset<TokensType::bit_size>(TokensType::move_left)[j]);
+            }
+            for(i = 0; i < TokensType::bit_size; i++, temp_iterator++)
+            {
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == TokensType::bit_size)
             {
                 pointer--;
                 iterator = temp_iterator-1;
@@ -252,6 +345,30 @@ namespace yabi
                 iterator = temp_iterator-1;
             }
         }
+
+        template<class IteratorType, class OutputChannelType, class StackType, class PointerType, class SomeType = has_bit_size<TokensType>>
+        static inline typename std::enable_if<SomeType::value,void>::type instruct(IteratorType& iterator, OutputChannelType& output, const StackType& stack, const PointerType& pointer)
+        {
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            Vector<bool> token;
+            for(Integer j = 0; j < TokensType::bit_size; j++)
+            {
+                token.push_back(Bitset<TokensType::bit_size>(TokensType::output)[j]);
+            }
+            for(i = 0; i < TokensType::bit_size; i++, temp_iterator++)
+            {
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == TokensType::bit_size)
+            {
+                output << stack[pointer];
+                iterator = temp_iterator-1;
+            }
+        }
     };
 
     template<class TokensType>
@@ -280,6 +397,30 @@ namespace yabi
                 }
             }
             if(i == std::strlen(token))
+            {
+                input >> stack[pointer];
+                iterator = temp_iterator-1;
+            }
+        }
+
+        template<class IteratorType, class InputChannelType, class StackType, class PointerType, class SomeType = has_bit_size<TokensType>>
+        static inline typename std::enable_if<SomeType::value,void>::type instruct(IteratorType& iterator, InputChannelType& input, StackType& stack, const PointerType& pointer)
+        {
+            IteratorType temp_iterator = iterator;
+            Integer i;
+            Vector<bool> token;
+            for(Integer j = 0; j < TokensType::bit_size; j++)
+            {
+                token.push_back(Bitset<TokensType::bit_size>(TokensType::input)[j]);
+            }
+            for(i = 0; i < TokensType::bit_size; i++, temp_iterator++)
+            {
+                if(*temp_iterator != token[i])
+                {
+                    break;
+                }
+            }
+            if(i == TokensType::bit_size)
             {
                 input >> stack[pointer];
                 iterator = temp_iterator-1;
